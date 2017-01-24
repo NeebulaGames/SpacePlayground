@@ -2,9 +2,12 @@
 
 #include "SpacePlayground.h"
 #include "PlaygroundGameMode.h"
+#include "PlaygroundCharacter.h"
 
 APlaygroundGameMode::APlaygroundGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
-{}
+{
+	DefaultPawnClass = APlaygroundCharacter::StaticClass();
+}
 
 void APlaygroundGameMode::StartPlay()
 {
