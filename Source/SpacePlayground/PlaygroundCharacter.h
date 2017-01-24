@@ -30,5 +30,11 @@ protected:
 	//handles strafing
 	UFUNCTION()
 	void MoveHorizontal(float Val);
+
+	UFUNCTION()
+	void OnStartJump();
+
+	UFUNCTION()
+	void OnStopJump();
 	
 };

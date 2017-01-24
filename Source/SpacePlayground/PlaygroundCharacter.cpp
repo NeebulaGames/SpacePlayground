@@ -35,11 +35,13 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	InputComponent->BindAxis("Horizontal", this, &APlaygroundCharacter::MoveHorizontal);
 	InputComponent->BindAxis("Turn", this, &APlaygroundCharacter::AddControllerYawInput);
 	InputComponent->BindAxis("LookUp", this, &APlaygroundCharacter::AddControllerPitchInput);
+	InputComponent->BindAction("Jump", IE_Pressed, this, &APlaygroundCharacter::OnStartJump);
+	InputComponent->BindAction("Jump", IE_Released, this, &APlaygroundCharacter::OnStopJump);
 }
 
 void APlaygroundCharacter::MoveForward(float Val)
 {
-	if ((Controller != NULL) && (Val != 0.0f))
+	if ((Controller != nullptr) && (Val != 0.0f))
 	{
 		// find out which way is forward
 		FRotator Rotation = Controller->GetControlRotation();
@@ -56,7 +58,7 @@ void APlaygroundCharacter::MoveForward(float Val)
 
 void APlaygroundCharacter::MoveHorizontal(float Val)
 {
-	if ((Controller != NULL) && (Val != 0.0f))
+	if ((Controller != nullptr) && (Val != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -64,5 +66,15 @@ void APlaygroundCharacter::MoveHorizontal(float Val)
 		// add movement in that direction
 		AddMovementInput(Direction, Val);
 	}
+}
+
+void APlaygroundCharacter::OnStartJump()
+{
+	bPressedJump = true;
+}
+
+void APlaygroundCharacter::OnStopJump()
+{
+	bPressedJump = false;
 }
 
