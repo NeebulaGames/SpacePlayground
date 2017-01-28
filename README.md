@@ -3,7 +3,7 @@ Our UE4 playground for testing features for our upcoming game
 
 ## Requirements
 - Unreal Engine v4.14.3
-- Visual Studio 2015 (on Windows)
+- Visual Studio 2015 with [C++ build tools](http://landinghub.visualstudio.com/visual-cpp-build-tools) (on Windows)
 - XCode (on macOS)
 
 ## How to open it in the editor
