@@ -2,9 +2,9 @@
 
 #include "SpacePlayground.h"
 #include "PlaygroundCharacter.h"
+#include "MyStaticLibrary.h"
 #include "SpacePlaygroundStatics.h"
 #include "InteractableComponent.h"
-
 
 // Sets default values
 APlaygroundCharacter::APlaygroundCharacter()
@@ -27,7 +27,17 @@ void APlaygroundCharacter::BeginPlay()
 void APlaygroundCharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+	if(pickedObject!=nullptr)
+	{
+		const FVector Start = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+		const FVector dir_camera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector();
+		const FVector End = Start + dir_camera * 250;
 
+		APawn* pawn = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
+		pickedObject->SetActorLocationAndRotation(End + offset,
+			pawn->GetControlRotation());
+	}
+		
 }
 
 // Called to bind functionality to input
@@ -97,3 +107,35 @@ void APlaygroundCharacter::Use()
 			interactable->Trigger();
 	}
 }
+
+void APlaygroundCharacter::OnPickUp()
+{
+	const FVector Start = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+	const FVector dir_camera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector();
+	const FVector End = Start + dir_camera * 250;
+
+	//The trace data is stored here
+	FHitResult HitData(ForceInit);
+
+	if (pickedObject != nullptr)
+	{
+		LastHitted.GetComponent()->SetSimulatePhysics(true);
+		pickedObject = nullptr;
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Object Released"));
+	}
+	//If Trace Hits anything (ignore the controlled pawn)
+	else if (UMyStaticLibrary::Trace(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn(), Start, End, HitData) && HitData.GetActor())
+	{
+		if (HitData.GetComponent()->IsSimulatingPhysics() && pickedObject == nullptr)
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.f, 0, 2.f);
+			HitData.GetComponent()->SetSimulatePhysics(false);
+			LastHitted = HitData;
+			pickedObject = HitData.GetActor();
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Object pickedUp"));		
+		}
+	}
+}
+

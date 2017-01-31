@@ -21,6 +21,11 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 protected:
+
+	AActor* pickedObject = nullptr;
+	FHitResult LastHitted;
+	FVector offset = FVector(0.f, 0.f, 50.f);
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
