@@ -30,7 +30,6 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UParticleSystemComponent* ParticleSystemComponent;
 
-	UPROPERTY(EditAnywhere)
 	class USoundWave* explosionSound;
 
 private:
