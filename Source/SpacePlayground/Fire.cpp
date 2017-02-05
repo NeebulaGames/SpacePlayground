@@ -60,11 +60,9 @@ void AFire::BeginPlay()
 	}
 
 	fireAudioComponent->Play();
-	/*UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, GetActorLocation(), GetActorRotation(),1,1,0, soundAttenuation);
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSparksSound, GetActorLocation(), GetActorRotation(), 1, 1, 0, soundAttenuation);*/
 
-	FTimerHandle unusedHandle;
-	GetWorldTimerManager().SetTimer(unusedHandle, this, &AFire::ExtinguishFire, 6.f);
+	/*FTimerHandle unusedHandle;
+	GetWorldTimerManager().SetTimer(unusedHandle, this, &AFire::ExtinguishFire, 6.f);*/
 	
 }
 

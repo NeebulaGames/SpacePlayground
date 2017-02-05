@@ -46,7 +46,6 @@ protected:
 
 public:
 	void ExtinguishFire();
-
 	void RestartFire();
 
 private:
