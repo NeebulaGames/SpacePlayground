@@ -15,16 +15,37 @@ AFire::AFire()
 
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> firePS(TEXT("ParticleSystem'/Game/Particles/P_Fire.P_Fire'"));
 
-	particleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleSystem"));
-	particleSystemComponent->SetupAttachment(billboardComponent);
-	particleSystemComponent->SetTemplate(firePS.Object);
-	particleSystemComponent->bAutoActivate = true;
+	fireParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireParticleSystem"));
+	fireParticleSystemComponent->SetupAttachment(billboardComponent);
+	fireParticleSystemComponent->SetTemplate(firePS.Object);
+	fireParticleSystemComponent->bAutoActivate = true;
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> smokePS(TEXT("ParticleSystem'/Game/Particles/P_Smoke.P_Smoke'"));
+
+	smokeParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("SmokeParticleSystem"));
+	smokeParticleSystemComponent->SetupAttachment(billboardComponent);
+	smokeParticleSystemComponent->SetTemplate(smokePS.Object);
+	smokeParticleSystemComponent->bAutoActivate = false;
+
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> soundAttenuance(TEXT("SoundAttenuation'/Game/Effects/AttenuationDistanceEffect.AttenuationDistanceEffect'"));
+
+	this->soundAttenuation = soundAttenuance.Object;
 
 	static ConstructorHelpers::FObjectFinder<USoundWave> fireSound(TEXT("SoundWave'/Game/Sounds/Fire01.Fire01'"));
 	this->fireSound = fireSound.Object;
 
 	static ConstructorHelpers::FObjectFinder<USoundWave> fireSparksSound(TEXT("SoundWave'/Game/Sounds/Fire_Sparks01.Fire_Sparks01'"));
 	this->fireSparksSound = fireSparksSound.Object;
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> smokeSound(TEXT("SoundWave'/Game/Sounds/Smoke01.Smoke01'"));
+	this->smokeSound = smokeSound.Object;
+	this->smokeSound->Volume = 0.3f;
+
+	fireAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("fireAudioComponent"));
+	fireAudioComponent->bAutoActivate = false;
+	fireAudioComponent->SetupAttachment(billboardComponent);
+	fireAudioComponent->AttenuationSettings = soundAttenuation;
+
 }
 
 // Called when the game starts or when spawned
@@ -32,9 +53,18 @@ void AFire::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, GetActorLocation());
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, GetActorLocation());
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSparksSound, GetActorLocation());
+	fireAudioComponent->SetWorldLocation(GetActorLocation());
+
+	if (fireAudioComponent->IsValidLowLevelFast()) {
+		fireAudioComponent->SetSound(fireSparksSound);
+	}
+
+	fireAudioComponent->Play();
+	/*UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, GetActorLocation(), GetActorRotation(),1,1,0, soundAttenuation);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSparksSound, GetActorLocation(), GetActorRotation(), 1, 1, 0, soundAttenuation);*/
+
+	FTimerHandle unusedHandle;
+	GetWorldTimerManager().SetTimer(unusedHandle, this, &AFire::ExtinguishFire, 6.f);
 	
 }
 
@@ -47,6 +77,26 @@ void AFire::Tick( float DeltaTime )
 
 void AFire::ExtinguishFire()
 {
-	
+	fireAudioComponent->Stop();
+	if (fireAudioComponent->IsValidLowLevelFast()) {
+		fireAudioComponent->SetSound(smokeSound);
+	}
+	fireAudioComponent->Play();
+
+	extinguished = true;
+	fireParticleSystemComponent->Deactivate();
+	smokeParticleSystemComponent->Activate();
+}
+
+void AFire::RestartFire()
+{
+	fireAudioComponent->Stop();
+	if (fireAudioComponent->IsValidLowLevelFast()) {
+		fireAudioComponent->SetSound(fireSparksSound);
+	}
+	fireAudioComponent->Play();
+	extinguished = false;
+	smokeParticleSystemComponent->Deactivate();
+	fireParticleSystemComponent->Activate();
 }
 

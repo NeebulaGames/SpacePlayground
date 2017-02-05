@@ -24,7 +24,10 @@ protected:
 	class UBillboardComponent* billboardComponent;
 
 	UPROPERTY(VisibleAnywhere)
-	class UParticleSystemComponent* particleSystemComponent;
+	class UParticleSystemComponent* fireParticleSystemComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	class UParticleSystemComponent* smokeParticleSystemComponent;
 
 	UPROPERTY(EditAnywhere)
 	class USoundWave* fireSound;
@@ -33,8 +36,19 @@ protected:
 	class USoundWave* fireSparksSound;
 
 	UPROPERTY(EditAnywhere)
-	class USoundAttenuation* soundAttenuation;
+	class USoundWave* smokeSound;
+
+	UPROPERTY(EditAnywhere)
+	USoundAttenuation* soundAttenuation;
+
+	UPROPERTY(EditAnywhere)
+	UAudioComponent* fireAudioComponent;
+
+public:
+	void ExtinguishFire();
+
+	void RestartFire();
 
 private:
-	void ExtinguishFire();
+	bool extinguished = false;
 };
