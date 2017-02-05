@@ -41,8 +41,7 @@ void AExplosion::BeginPlay()
 	if (InteractableActor != nullptr)
 	{
 		UInteractableComponent* InteractableComponent = InteractableActor->FindComponentByClass<UInteractableComponent>();
-		if (ensure(InteractableComponent != nullptr))
-			//verify(InteractableComponent != nullptr/*, TEXT("Actor %s is not interactable!"), InteractableActor->GetName()*/);
+		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
 			InteractableComponent->OnTriggerAction.AddDynamic(this, &AExplosion::DelayedExplosion);
 	}
 }
