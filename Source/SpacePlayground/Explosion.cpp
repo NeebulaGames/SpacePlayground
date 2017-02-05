@@ -1,6 +1,7 @@
 // All rights Neebula Games
 
 #include "SpacePlayground.h"
+#include "InteractableComponent.h"
 #include "Explosion.h"
 
 
@@ -35,7 +36,15 @@ void AExplosion::BeginPlay()
 	Super::BeginPlay();
 	
 	FTimerHandle unusedHandle;
-	GetWorldTimerManager().SetTimer(unusedHandle, this, &AExplosion::DelayedExplosion, 2.f);
+	//GetWorldTimerManager().SetTimer(unusedHandle, this, &AExplosion::DelayedExplosion, 2.f);
+
+	if (InteractableActor != nullptr)
+	{
+		UInteractableComponent* InteractableComponent = InteractableActor->FindComponentByClass<UInteractableComponent>();
+		if (ensure(InteractableComponent != nullptr))
+			//verify(InteractableComponent != nullptr/*, TEXT("Actor %s is not interactable!"), InteractableActor->GetName()*/);
+			InteractableComponent->OnTriggerAction.AddDynamic(this, &AExplosion::DelayedExplosion);
+	}
 }
 
 // Called every frame

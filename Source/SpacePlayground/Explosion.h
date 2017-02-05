@@ -32,6 +32,10 @@ protected:
 
 	class USoundWave* explosionSound;
 
+	UPROPERTY(EditAnywhere, Category="Triggerable")
+	class AActor* InteractableActor;
+
 private:
+	UFUNCTION()
 	void DelayedExplosion();
 };
