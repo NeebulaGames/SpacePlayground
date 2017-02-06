@@ -2,6 +2,8 @@
 
 #include "SpacePlayground.h"
 #include "PlaygroundCharacter.h"
+#include "SpacePlaygroundStatics.h"
+#include "InteractableComponent.h"
 
 
 // Sets default values
@@ -37,6 +39,7 @@ void APlaygroundCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	InputComponent->BindAxis("LookUp", this, &APlaygroundCharacter::AddControllerPitchInput);
 	InputComponent->BindAction("Jump", IE_Pressed, this, &APlaygroundCharacter::OnStartJump);
 	InputComponent->BindAction("Jump", IE_Released, this, &APlaygroundCharacter::OnStopJump);
+	InputComponent->BindAction("Use", IE_Pressed, this, &APlaygroundCharacter::Use);
 }
 
 void APlaygroundCharacter::MoveForward(float Val)
@@ -78,3 +81,19 @@ void APlaygroundCharacter::OnStopJump()
 	bPressedJump = false;
 }
 
+void APlaygroundCharacter::Use()
+{
+	const FVector Start = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+	const FVector dir_camera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector();
+	const FVector End = Start + dir_camera * 250;
+
+	FHitResult hitData(ForceInit);
+
+	if (USpacePlaygroundStatics::Trace(GetWorld(), this, Start, End, hitData))
+	{
+		UInteractableComponent* interactable = hitData.Actor->FindComponentByClass<UInteractableComponent>();
+
+		if (interactable != nullptr)
+			interactable->Trigger();
+	}
+}

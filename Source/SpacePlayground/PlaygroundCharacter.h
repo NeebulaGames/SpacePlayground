@@ -36,5 +36,8 @@ protected:
 
 	UFUNCTION()
 	void OnStopJump();
+
+private:
+	void Use();
 	
 };
