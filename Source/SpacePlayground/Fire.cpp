@@ -1,6 +1,7 @@
 // All rights Neebula Games
 
 #include "SpacePlayground.h"
+#include "InteractableComponent.h"
 #include "Fire.h"
 
 
@@ -61,6 +62,20 @@ void AFire::BeginPlay()
 
 	fireAudioComponent->Play();
 
+	if (InteractableActorExtinguish != nullptr)
+	{
+		UInteractableComponent* InteractableComponent = InteractableActorExtinguish->FindComponentByClass<UInteractableComponent>();
+		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
+			InteractableComponent->OnTriggerAction.AddDynamic(this, &AFire::ExtinguishFire);
+	}
+
+	if (InteractableActorReset != nullptr)
+	{
+		UInteractableComponent* InteractableComponent = InteractableActorReset->FindComponentByClass<UInteractableComponent>();
+		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
+			InteractableComponent->OnTriggerAction.AddDynamic(this, &AFire::RestartFire);
+	}
+
 	/*FTimerHandle unusedHandle;
 	GetWorldTimerManager().SetTimer(unusedHandle, this, &AFire::ExtinguishFire, 6.f);*/
 	
@@ -75,26 +90,33 @@ void AFire::Tick( float DeltaTime )
 
 void AFire::ExtinguishFire()
 {
-	fireAudioComponent->Stop();
-	if (fireAudioComponent->IsValidLowLevelFast()) {
-		fireAudioComponent->SetSound(smokeSound);
-	}
-	fireAudioComponent->Play();
+	if(!extinguished)
+	{
+		fireAudioComponent->Stop();
+		if (fireAudioComponent->IsValidLowLevelFast()) {
+			fireAudioComponent->SetSound(smokeSound);
+		}
+		fireAudioComponent->Play();
 
-	extinguished = true;
-	fireParticleSystemComponent->Deactivate();
-	smokeParticleSystemComponent->Activate();
+		extinguished = true;
+		fireParticleSystemComponent->Deactivate();
+		smokeParticleSystemComponent->Activate();
+	}
 }
 
 void AFire::RestartFire()
 {
-	fireAudioComponent->Stop();
-	if (fireAudioComponent->IsValidLowLevelFast()) {
-		fireAudioComponent->SetSound(fireSparksSound);
+	if(extinguished)
+	{
+		fireAudioComponent->Stop();
+		if (fireAudioComponent->IsValidLowLevelFast()) {
+			fireAudioComponent->SetSound(fireSparksSound);
+		}
+		fireAudioComponent->Play();
+		extinguished = false;
+		smokeParticleSystemComponent->Deactivate();
+		fireParticleSystemComponent->Activate();
 	}
-	fireAudioComponent->Play();
-	extinguished = false;
-	smokeParticleSystemComponent->Deactivate();
-	fireParticleSystemComponent->Activate();
+	
 }
 

@@ -1,6 +1,7 @@
 // All rights Neebula Games
 
 #include "SpacePlayground.h"
+#include "InteractableComponent.h"
 #include "WaterSprinkler.h"
 
 
@@ -41,9 +42,20 @@ void AWaterSprinkler::BeginPlay()
 
 	//the Sprinkler will be OFF at start, we will have an Start function and a Stop function, to start the sprinklers and have them running over X time.
 
-	FTimerHandle unusedHandle;
-	GetWorldTimerManager().SetTimer(unusedHandle, this, &AWaterSprinkler::Start, 5.f);
+	/*FTimerHandle unusedHandle;
+	GetWorldTimerManager().SetTimer(unusedHandle, this, &AWaterSprinkler::Start, 5.f);*/
 	//GetWorldTimerManager().SetTimer(unusedHandle, this, &AWaterSprinkler::Stop, 10.f);
+
+
+	if (InteractableActor != nullptr)
+	{
+		UInteractableComponent* InteractableComponent = InteractableActor->FindComponentByClass<UInteractableComponent>();
+		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
+			InteractableComponent->OnTriggerAction.AddDynamic(this, &AWaterSprinkler::StartStopsprinkler);
+	}
+
+	if (startActivated)
+		StartStopsprinkler();
 	
 }
 
@@ -54,23 +66,27 @@ void AWaterSprinkler::Tick( float DeltaTime )
 
 }
 
-void AWaterSprinkler::Start()
+void AWaterSprinkler::StartStopsprinkler()
 {
-	waterfallSystemComponent->Activate();
+	if(!isActive)
+	{
+		isActive = true;
+		waterfallSystemComponent->Activate();
 
-	waterAudioComponent->SetWorldLocation(GetActorLocation());
+		waterAudioComponent->SetWorldLocation(GetActorLocation());
 
-	if (waterAudioComponent->IsValidLowLevelFast()) {
-		waterAudioComponent->SetSound(waterSound);
+		if (waterAudioComponent->IsValidLowLevelFast()) {
+			waterAudioComponent->SetSound(waterSound);
+		}
+
+		waterAudioComponent->Play();
+	}
+	else if (isActive)
+	{
+		isActive = false;
+		waterfallSystemComponent->Deactivate();
+		waterAudioComponent->Stop();
 	}
 
-	waterAudioComponent->Play();
-
-}
-
-void AWaterSprinkler::Stop()
-{
-	waterfallSystemComponent->Deactivate();
-	waterAudioComponent->Stop();
 }
 

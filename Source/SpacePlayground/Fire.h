@@ -44,10 +44,18 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UAudioComponent* fireAudioComponent;
 
-public:
-	void ExtinguishFire();
-	void RestartFire();
+	UPROPERTY(EditAnywhere, Category = "Triggerable")
+	class AActor* InteractableActorExtinguish;
+
+	UPROPERTY(EditAnywhere, Category = "Triggerable")
+	class AActor* InteractableActorReset;
 
 private:
+	UFUNCTION()
+	void ExtinguishFire();
+
+	UFUNCTION()
+	void RestartFire();
+
 	bool extinguished = false;
 };

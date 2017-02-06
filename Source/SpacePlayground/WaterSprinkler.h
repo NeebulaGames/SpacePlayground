@@ -34,9 +34,18 @@ protected:
 	UPROPERTY(EditAnywhere)
 		UAudioComponent* waterAudioComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Triggerable")
+		class AActor* InteractableActor;
+
+	UPROPERTY(EditAnywhere, Category = "Triggerable")
+		bool startActivated = false;
+
 public:
-	void Start();
-	void Stop();
+	UFUNCTION()
+	void StartStopsprinkler();
+
+private:
+	bool isActive = false;
 	
 	
 };
