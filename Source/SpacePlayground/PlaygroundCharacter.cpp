@@ -2,9 +2,9 @@
 
 #include "SpacePlayground.h"
 #include "PlaygroundCharacter.h"
+#include "MyStaticLibrary.h"
 #include "SpacePlaygroundStatics.h"
 #include "InteractableComponent.h"
-
 
 // Sets default values
 APlaygroundCharacter::APlaygroundCharacter()
@@ -27,7 +27,17 @@ void APlaygroundCharacter::BeginPlay()
 void APlaygroundCharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+	if(pickedObject!=nullptr)
+	{
+		const FVector Start = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation();
+		const FVector dir_camera = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector();
+		const FVector End = Start + dir_camera * 250;
 
+		APawn* pawn = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
+		pickedObject->SetActorLocationAndRotation(End + offset,
+			pawn->GetControlRotation());
+	}
+		
 }
 
 // Called to bind functionality to input
@@ -89,11 +99,33 @@ void APlaygroundCharacter::Use()
 
 	FHitResult hitData(ForceInit);
 
-	if (USpacePlaygroundStatics::Trace(GetWorld(), this, Start, End, hitData))
+	if (pickedObject != nullptr)
 	{
-		UInteractableComponent* interactable = hitData.Actor->FindComponentByClass<UInteractableComponent>();
+		LastHitted.GetComponent()->SetSimulatePhysics(true);
+		pickedObject = nullptr;
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Object Released"));
+	}
+	else
+	{
+		if (USpacePlaygroundStatics::Trace(GetWorld(), this, Start, End, hitData))
+		{
+			UInteractableComponent* interactable = hitData.Actor->FindComponentByClass<UInteractableComponent>();
 
-		if (interactable != nullptr)
-			interactable->Trigger();
+			if (interactable != nullptr)
+				interactable->Trigger();
+
+			else if (hitData.GetComponent()->IsSimulatingPhysics() && pickedObject == nullptr)
+			{
+				DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.f, 0, 2.f);
+				hitData.GetComponent()->SetSimulatePhysics(false);
+				LastHitted = hitData;
+				pickedObject = hitData.GetActor();
+				if (GEngine)
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Object pickedUp"));
+			}
+		}
+
 	}
 }
+
