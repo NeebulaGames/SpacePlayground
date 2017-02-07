@@ -34,8 +34,8 @@ void APlaygroundCharacter::Tick( float DeltaTime )
 		const FVector End = Start + dir_camera * 250;
 
 		APawn* pawn = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetPawn();
-		pickedObject->SetActorLocationAndRotation(End + offset,
-			pawn->GetControlRotation());
+		pickedObject->SetActorRelativeLocation(End + offset);
+		pickedObject->SetActorRelativeRotation(pawn->GetControlRotation());
 	}
 		
 }
