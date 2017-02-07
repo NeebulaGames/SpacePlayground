@@ -2,7 +2,6 @@
 
 #include "SpacePlayground.h"
 #include "PlaygroundCharacter.h"
-#include "MyStaticLibrary.h"
 #include "SpacePlaygroundStatics.h"
 #include "InteractableComponent.h"
 
