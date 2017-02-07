@@ -3,6 +3,7 @@
 #include "SpacePlayground.h"
 #include "InteractableComponent.h"
 #include "Fire.h"
+#include "TeleporterComponent.h"
 
 
 // Sets default values
@@ -62,18 +63,24 @@ void AFire::BeginPlay()
 
 	fireAudioComponent->Play();
 
-	if (InteractableActorExtinguish != nullptr)
+	if (interactableActorExtinguish != nullptr)
 	{
-		UInteractableComponent* InteractableComponent = InteractableActorExtinguish->FindComponentByClass<UInteractableComponent>();
+		UInteractableComponent* InteractableComponent = interactableActorExtinguish->FindComponentByClass<UInteractableComponent>();
 		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
-			InteractableComponent->OnTriggerAction.AddDynamic(this, &AFire::ExtinguishFire);
+		{
+			if (!extincWithSprinkler)
+				InteractableComponent->OnTriggerAction.AddDynamic(this, &AFire::ExtinguishFire);
+			else
+				InteractableComponent->OnTriggerAction.AddDynamic(this, &AFire::DelayedExtinguishFire);
+		}	
 	}
 
-	if (InteractableActorReset != nullptr)
+	if (interactableActorReset != nullptr)
 	{
-		UInteractableComponent* InteractableComponent = InteractableActorReset->FindComponentByClass<UInteractableComponent>();
+		UInteractableComponent* InteractableComponent = interactableActorReset->FindComponentByClass<UInteractableComponent>();
 		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
 			InteractableComponent->OnTriggerAction.AddDynamic(this, &AFire::RestartFire);
+			
 	}
 
 	/*FTimerHandle unusedHandle;
@@ -85,7 +92,6 @@ void AFire::BeginPlay()
 void AFire::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-
 }
 
 void AFire::ExtinguishFire()
@@ -102,6 +108,13 @@ void AFire::ExtinguishFire()
 		fireParticleSystemComponent->Deactivate();
 		smokeParticleSystemComponent->Activate();
 	}
+}
+
+void AFire::DelayedExtinguishFire()
+{
+	float delay = FMath::FRandRange(2.0f, 5.0f);
+	FTimerHandle unusedHandle;
+	GetWorldTimerManager().SetTimer(unusedHandle, this, &AFire::ExtinguishFire, delay);
 }
 
 void AFire::RestartFire()

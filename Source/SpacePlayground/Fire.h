@@ -22,7 +22,7 @@ public:
 
 protected:
 	class UBillboardComponent* billboardComponent;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	class UParticleSystemComponent* fireParticleSystemComponent;
 
@@ -45,14 +45,20 @@ protected:
 	UAudioComponent* fireAudioComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Triggerable")
-	class AActor* InteractableActorExtinguish;
+	class AActor* interactableActorExtinguish;
 
 	UPROPERTY(EditAnywhere, Category = "Triggerable")
-	class AActor* InteractableActorReset;
+	class AActor* interactableActorReset;
+
+	UPROPERTY(EditAnywhere, Category = "Triggerable")
+	bool extincWithSprinkler = false;
 
 private:
 	UFUNCTION()
 	void ExtinguishFire();
+
+	UFUNCTION()
+	void DelayedExtinguishFire();
 
 	UFUNCTION()
 	void RestartFire();

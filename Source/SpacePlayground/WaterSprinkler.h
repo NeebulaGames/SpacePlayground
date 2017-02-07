@@ -35,14 +35,20 @@ protected:
 		UAudioComponent* waterAudioComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Triggerable")
-		class AActor* InteractableActor;
+		class AActor* interactableActor;
 
 	UPROPERTY(EditAnywhere, Category = "Triggerable")
 		bool startActivated = false;
 
 public:
 	UFUNCTION()
-	void StartStopsprinkler();
+	void Start();
+
+	UFUNCTION()
+	void Stop();
+
+	UFUNCTION()
+	void StartWithTimer();
 
 private:
 	bool isActive = false;

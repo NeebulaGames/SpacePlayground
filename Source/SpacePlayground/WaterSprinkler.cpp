@@ -47,15 +47,15 @@ void AWaterSprinkler::BeginPlay()
 	//GetWorldTimerManager().SetTimer(unusedHandle, this, &AWaterSprinkler::Stop, 10.f);
 
 
-	if (InteractableActor != nullptr)
+	if (interactableActor != nullptr)
 	{
-		UInteractableComponent* InteractableComponent = InteractableActor->FindComponentByClass<UInteractableComponent>();
+		UInteractableComponent* InteractableComponent = interactableActor->FindComponentByClass<UInteractableComponent>();
 		if (ensureMsgf(InteractableComponent != nullptr, TEXT("The selected trigger is not ineractive!")))
-			InteractableComponent->OnTriggerAction.AddDynamic(this, &AWaterSprinkler::StartStopsprinkler);
+			InteractableComponent->OnTriggerAction.AddDynamic(this, &AWaterSprinkler::StartWithTimer);
 	}
 
 	if (startActivated)
-		StartStopsprinkler();
+		Start();
 	
 }
 
@@ -66,7 +66,7 @@ void AWaterSprinkler::Tick( float DeltaTime )
 
 }
 
-void AWaterSprinkler::StartStopsprinkler()
+void AWaterSprinkler::Start()
 {
 	if(!isActive)
 	{
@@ -81,12 +81,26 @@ void AWaterSprinkler::StartStopsprinkler()
 
 		waterAudioComponent->Play();
 	}
-	else if (isActive)
+}
+
+void AWaterSprinkler::Stop()
+{
+	if (isActive)
 	{
 		isActive = false;
 		waterfallSystemComponent->Deactivate();
 		waterAudioComponent->Stop();
 	}
+}
 
+void AWaterSprinkler::StartWithTimer()
+{
+	if(!isActive)
+	{
+		Start();
+		FTimerHandle unusedHandle;
+		GetWorldTimerManager().SetTimer(unusedHandle, this, &AWaterSprinkler::Stop, 5.f);
+	}
+	
 }
 
