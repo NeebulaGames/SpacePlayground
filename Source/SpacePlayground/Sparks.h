@@ -34,16 +34,25 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UPointLightComponent* sparkPointLightComponent;
+
+	UPROPERTY()
+	UTimelineComponent* BrightnessControl;
+
+	UPROPERTY()
+	UCurveFloat* fCurve;
+
+	FOnTimelineFloat InterpFunction{};
 	
 private:
 	UFUNCTION()
 	float GetRandomDelay() const;
+
+	UFUNCTION()
+	void TimelineFloatReturn(float val) const;
 
 	float delay = 0.f;
 	float sparkTime = 0.f;
 
 	const float minRand = 1.2f;
 	const float maxRand = 4.0f;
-
-	
 };
