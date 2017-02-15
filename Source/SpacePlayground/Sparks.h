@@ -21,14 +21,29 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 protected:
-	class UBillboardComponent* billboardComponent;
+	//class UBillboardComponent* billboardComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	class UParticleSystemComponent* sparkParticleSystemComponent;
 
 	UPROPERTY(EditAnywhere)
-	class USoundWave* sparkSound;
+	class USoundCue* sparksSound;
+
+	UPROPERTY(EditAnywhere)
+	UAudioComponent* sparkAudioComponent;
+
+	UPROPERTY(EditAnywhere)
+	UPointLightComponent* sparkPointLightComponent;
 	
 private:
+	UFUNCTION()
+	float GetRandomDelay() const;
+
+	float delay = 0.f;
+	float sparkTime = 0.f;
+
+	const float minRand = 1.2f;
+	const float maxRand = 4.0f;
+
 	
 };
